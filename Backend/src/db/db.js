@@ -8,7 +8,7 @@ const connectDB = async () => {
             pool = mysql.createPool({
                 host: process.env.HOST,
                 user: process.env.USER,
-                // password: process.env.PASSWORD, // Make sure this is uncommented for production
+                password: process.env.PASSWORD, // Make sure this is uncommented for production
                 database: process.env.DBNAME,
                 waitForConnections: true,
                 connectionLimit: 10, // Adjust as necessary
