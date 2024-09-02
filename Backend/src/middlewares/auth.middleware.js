@@ -8,9 +8,9 @@ const verifyJwt = asyncHandler(async (req, res, next) => {
 
     try {
         const token = req.cookies?.accessToken || req.header("Authorization")?.replace("Bearer ", "")
-
         if (!token){
             return res.status(401).json({
+                status: 401,
                 success: false,
                 message: "Unauthorised request"
             })
