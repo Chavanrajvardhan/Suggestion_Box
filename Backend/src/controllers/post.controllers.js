@@ -63,53 +63,7 @@ const createPost = asyncHandler(async (req, res) => {
     })
 })
 
-const updatePost = asyncHandler(async (req, res) => {
 
-    const db = await connectDB()
-    const { title, content } = req.body;
-    const { id } = req.params
-
-    if (!(id && title && content)) {
-        return res.status(400).json({
-            status: 400,
-            success: false,
-            message: "All fields are required",
-        });
-    }
-
-    const [result] = await db.query(
-        "UPDATE posts SET title = ?, content = ? WHERE id = ?",
-        [title, content, id]
-    );
-
-    if (result.affectedRows === 0) {
-        return res.status(404).json({
-            status: 404,
-            success: false,
-            message: "Post not found or no changes made",
-        });
-    }
-
-    const [updatedPost] = await db.query(
-        "SELECT * FROM posts WHERE id = ?",
-        [id]
-    );
-
-    if (!updatedPost || updatedPost.length === 0) {
-        return res.status(500).json({
-            status: 500,
-            success: false,
-            message: "Error while fetching updated post",
-        });
-    }
-
-    return res.status(200).json({
-        status: 200,
-        success: true,
-        data: updatedPost[0],
-        message: "Post updated successfully",
-    });
-})
 
 const deletePost = asyncHandler(async (req, res) => {
 

@@ -1,7 +1,6 @@
 import { Router } from "express"
 import {
     createPost,
-    updatePost,
     deletePost,
     getUserPosts,
     getAllPosts
@@ -14,7 +13,6 @@ const router = Router()
 router.use(verifyJwt) //Apply verifyJWT middleware to all routes in this file
 
 router.route("/").post(createPost)
-// router.route("/updatepost/:id").patch(updatePost)
 router.route("/deletepost/:id").delete(deletePost)
 router.route("/getalluserposts/:id").get(getUserPosts)
 router.route("/getAllPosts").get(getAllPosts)
