@@ -3,28 +3,45 @@ import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 
 function Signup() {
+    const navigate = useNavigate()
+    const [error, setError] = useState('')
     const [data, setData] = useState({
         username: "",
         fullname: "",
         email: "",
-        password: ""
+        password: "",
+        avatar: null // Add avatar to the state
     });
 
-    const [error, setError] = useState("");
-    const navigate = useNavigate();
-
-    const handelChange = ({ currentTarget: input }) => {
-        setData({ ...data, [input.name]: input.value });
+    const handleChange = ({ currentTarget: input }) => {
+        if (input.type === "file") {
+            setData({ ...data, avatar: input.files[0] }); // Handle file input
+        } else {
+            setData({ ...data, [input.name]: input.value });
+        }
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const  response  = await axios.post(" http://localhost:8000/api/v1/users/register", data);
-            if(response.status == 200){
-                navigate("/")
+            const formData = new FormData();
+            formData.append("username", data.username);
+            formData.append("fullname", data.fullname);
+            formData.append("email", data.email);
+            formData.append("password", data.password);
+            if (data.avatar) {
+                formData.append("avatar", data.avatar); // Append the avatar file
             }
-
+    
+            const response = await axios.post("http://localhost:8000/api/v1/users/register", formData, {
+                headers: {
+                    "Content-Type": "multipart/form-data"
+                }
+            });
+    
+            if (response.status === 200) {
+                navigate("/");
+            }
         } catch (error) {
             if (error.response && error.response.status === 400) {
                 console.log(error.response.data);
@@ -32,6 +49,7 @@ function Signup() {
             }
         }
     };
+    
 
     return (
         <div className="max-w-md mx-auto my-8 p-6 bg-gray-800 rounded-lg shadow-lg">
@@ -43,7 +61,7 @@ function Signup() {
                         type="text"
                         name="username"
                         value={data.username}
-                        onChange={handelChange}
+                        onChange={handleChange}
                         placeholder="Username"
                         className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-indigo-500 focus:ring focus:ring-indigo-500 focus:ring-opacity-50"
                         required
@@ -55,7 +73,7 @@ function Signup() {
                         type="text"
                         name="fullname"
                         value={data.fullname}
-                        onChange={handelChange}
+                        onChange={handleChange}
                         placeholder="Full Name"
                         className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-indigo-500 focus:ring focus:ring-indigo-500 focus:ring-opacity-50"
                         required
@@ -67,7 +85,7 @@ function Signup() {
                         type="email"
                         name="email"
                         value={data.email}
-                        onChange={handelChange}
+                        onChange={handleChange}
                         placeholder="Email"
                         className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-indigo-500 focus:ring focus:ring-indigo-500 focus:ring-opacity-50"
                         required
@@ -79,12 +97,22 @@ function Signup() {
                         type="password"
                         name="password"
                         value={data.password}
-                        onChange={handelChange}
+                        onChange={handleChange}
                         placeholder="Password"
                         className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-indigo-500 focus:ring focus:ring-indigo-500 focus:ring-opacity-50"
                         required
                     />
                 </div>
+                <div className="mb-6">
+                <label htmlFor="avatar" className="block text-sm font-medium text-white">Avatar</label>
+                <input
+                    type="file"
+                    name="avatar"
+                    accept="image/*"
+                    onChange={handleChange}
+                    className="mt-1 block w-full text-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-indigo-500 focus:ring focus:ring-indigo-500 focus:ring-opacity-50"
+                />
+            </div>
                 {error && <p className="text-red-600 mt-8 text-center">{error}</p>}
                 <button
                     type="submit"

@@ -2,23 +2,24 @@ import React, { useEffect, useState } from 'react'
 import axios from "axios"
 import Header from '../Header/Header.jsx'
 import AddPost from "./AddPost.jsx"
+import { useNavigate } from 'react-router-dom'
 
 
 
 function Home() {
-
+  const navigate = useNavigate()
   const [posts, setPosts] = useState([]);
-  const [popup, setPopup] = useState(false)
   const [selectedPost, setSelectedPost] = useState(null);
 
-
+  //Create posts
+  const [popup, setPopup] = useState(false)
   const openCreatePostBox = () => setPopup(true);
   const closeCreatePostBox = () => setPopup(false)
 
 
-
-  const addNewPost = (newPost) => {
-    setPosts([newPost, ...posts])
+  //when user create new post
+  const addNewPost = (newaddedPost) => {
+    setPosts([newaddedPost, ...posts])
   }
 
   useEffect(() => {
@@ -44,6 +45,9 @@ function Home() {
     setSelectedPost(null);
   };
 
+  const switchToUserPosts = (userId) => {
+    navigate("/allUserPosts", { state: { userId } })
+  }
 
   return (
     <>
@@ -54,11 +58,11 @@ function Home() {
           <p>Tell chaicode how they could make the product more useful to you.</p>
         </div>
         <div className="flex justify-between items-center mb-4 mx-auto">
-          <input
-            type="text"
-            placeholder="Search for posts"
-            className="w-full max-w-md p-2 bg-gray-800 rounded-md text-white focus:outline-none"
-          />
+          <button
+            onClick={() => posts.length > 0 && switchToUserPosts(posts[0].owner)} 
+            className="ml-4 bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 px-4 rounded-md">
+            User Posts
+          </button>
           <button
             onClick={openCreatePostBox}
             className="ml-4 bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 px-4 rounded-md">
@@ -74,19 +78,23 @@ function Home() {
 
         <div className="space-y-4 mx-auto">
           {posts && posts.map((post) => (
-            <div key={post.id} className="bg-gray-800 p-4 rounded-md"
-              onClick={() => handlePostClick(post)}
-            >
-              <div className="flex justify-between items-center"
-
-              >
+            <div key={post.id} className="bg-gray-800 p-4 rounded-sm "
+              onClick={() => handlePostClick(post)}>
+              <div className="flex justify-between items-center">
                 <div>
                   <h2 className="text-lg font-bold">{post.title}</h2>
                   <div
                     className="text-gray-300"
-                    dangerouslySetInnerHTML={{ __html: post.content.slice(0, 50) + '...' }}
+                    dangerouslySetInnerHTML={{ __html: post.content.slice(0, 100) + '...' }}
                   />
-                  <p className="text-sm text-red-600 pt-1">{post.fullname} • {new Date(post.createdAt).toLocaleDateString()}</p>
+                  <div className="flex items-center pt-2">
+                    <img
+                      src={post.avatar}
+                      alt={`${post.fullname}'s avatar`}
+                      className="w-10 h-10 rounded-full mr-4"
+                    />
+                    <p className="text-sm text-red-600">{post.fullname} • {new Date(post.createdAt).toLocaleDateString()}</p>
+                  </div>
                 </div>
                 <div className="text-orange-400 text-lg font-bold">
                   <span>↑</span>
@@ -104,7 +112,7 @@ function Home() {
           >
             <div
               className="bg-gray-700 text-white p-6 rounded-md max-w-xl w-full relative"
-              onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside the popup
+              onClick={(e) => e.stopPropagation()}
             >
               <button
                 className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
@@ -117,11 +125,17 @@ function Home() {
                 className="mt-4"
                 dangerouslySetInnerHTML={{ __html: selectedPost.content }}
               />
-              <p className="text-sm text-red-800  pt-2">{selectedPost.fullname} • {new Date(selectedPost.createdAt).toLocaleDateString()}</p>
+              <div className="flex items-center pt-2">
+                <img
+                  src={selectedPost.avatar}
+                  alt={`${selectedPost.fullname}'s avatar`}
+                  className="w-10 h-10 rounded-full mr-4"
+                />
+                <p className="text-sm text-red-600">{selectedPost.fullname} • {new Date(selectedPost.createdAt).toLocaleDateString()}</p>
+              </div>
             </div>
           </div>
         )}
-
       </div>
     </>
   )

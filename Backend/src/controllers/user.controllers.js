@@ -1,7 +1,7 @@
 import asyncHandler from "../utils/asyncHander.js";
 import { generateAccessToken, generateRefreshToken } from '../utils/tokens.js'
 import connectDB from "../db/db.js";
-
+import uploadOnCloudinary from "../utils/cloudinary.js"
 
 
 
@@ -35,6 +35,8 @@ const generateAccessTokenAndRefreshToken = async (user_id) => {
     }
 
 }
+
+
 const registerUser = asyncHandler(async (req, res) => {
  
     const db = await connectDB()
@@ -52,7 +54,7 @@ const registerUser = asyncHandler(async (req, res) => {
         "SELECT * FROM users WHERE username = ? OR email = ?",
         [username, email]
     )
-    // console.log(existedUser[0])
+
     if (existedUser.length > 0) {
         return res.status(400).json({
             success: false,
@@ -60,19 +62,41 @@ const registerUser = asyncHandler(async (req, res) => {
         })
     }
 
+    const avatarLocalPath = req.files?.avatar[0]?.path;
+
+    if(!avatarLocalPath){
+        return res.status(400).json({
+            status:400,
+            success:false,
+            message: "avatar file is required"
+        })
+    }
+
+    //upload avtar file on cloudinary
+    const avatar = await uploadOnCloudinary(avatarLocalPath)
+
+    if(!avatar){
+        return res.status(400).json({
+            status:400,
+            success:false,
+            message:"error while uploading avtar in cloudinary"
+        })
+    }
+
 
     const [user] = await db.query(
-        "INSERT INTO users (fullname, email, username, password) values(?, ?, ?, ?)",
-        [fullname, email, username, password]
+        "INSERT INTO users (fullname, email, username, password, avatar) values(?, ?, ?, ?, ?)",
+        [fullname, email, username, password, avatar.url]
     );
     
     if (!user) {
         return res.status(500).json({
-            statusCode: 500,
+            status: 500,
             success: false,
             message: "Something went wrong while registering the user"
         })
     }
+
 
     return res.status(200).json({
         status: 200,
@@ -80,7 +104,8 @@ const registerUser = asyncHandler(async (req, res) => {
         data: {
             username,
             fullname,
-            email
+            email,
+            avatar
         },
         message: "User registerd Successfully"
     })
@@ -91,9 +116,7 @@ const registerUser = asyncHandler(async (req, res) => {
 const loginUser = asyncHandler(async (req, res) => {
 
     const db = await connectDB()
-
     const {email, password } = req.body
-    console.log(email,password)
     
     if (!(password && email)) {
         return res.status(400).json({
@@ -118,8 +141,9 @@ const loginUser = asyncHandler(async (req, res) => {
             message: "Invalid credentials"
         })
     }
-    const { accessToken, refreshToken } = await generateAccessTokenAndRefreshToken(user.id);
 
+    //genrate accessToken and refreshToken
+    const { accessToken, refreshToken } = await generateAccessTokenAndRefreshToken(user.id);
 
     const options = {
         httpOnly: true,
@@ -142,7 +166,6 @@ const loginUser = asyncHandler(async (req, res) => {
 
 const logoutUser = asyncHandler(async (req, res) => {
     const db = await connectDB()
-
     const userId = req.user.id;
 
     const [rows] = await db.query(
@@ -164,8 +187,6 @@ const logoutUser = asyncHandler(async (req, res) => {
             success: true,
             message: "User Logged out successfully"
         })
-
-
 })
 
 

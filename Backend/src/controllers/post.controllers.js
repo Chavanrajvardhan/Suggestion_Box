@@ -2,17 +2,11 @@ import connectDB from "../db/db.js"
 import asyncHandler from "../utils/asyncHander.js";
 
 const createPost = asyncHandler(async (req, res) => {
-    //get data from frontend 
-    //validate data 
-    //saved it in datbase 
-    //if not throw error 
-
     const db = await connectDB()
     let { title, content } = req.body;
 
     content = content.replace(/<\/?[^>]+(>|$)/g, "");
 
-    console.log(content)
     if (!(title && content)) {
         console.log(true)
         return res.status(400).json({
@@ -23,7 +17,7 @@ const createPost = asyncHandler(async (req, res) => {
     }
 
     const [rows] = await db.query(
-        "INSERT INTO posts (owner, title, content) values (?, ?, ?)", //inser query dosnt return required data
+        "INSERT INTO posts (owner, title, content) values (?, ?, ?)",
         [req.user.id, title, content]
     )
 
@@ -36,7 +30,21 @@ const createPost = asyncHandler(async (req, res) => {
     }
 
     const [post] = await db.query(
-        "SELECT * FROM posts WHERE id = ?", [rows.insertId]
+        `SELECT
+        posts.id,
+        posts.title,
+        posts.content,
+        posts.createdAt, 
+        users.username, 
+        users.fullname, 
+        users.email, 
+        users.avatar
+         FROM posts 
+         JOIN users 
+         ON 
+         posts.owner = users.id 
+         WHERE posts.id = ?`,
+        [rows.insertId]
     )
 
     if (!post) {
@@ -56,11 +64,6 @@ const createPost = asyncHandler(async (req, res) => {
 })
 
 const updatePost = asyncHandler(async (req, res) => {
-    //get data from frontend 
-    //validate 
-    //query to database using post id
-    //throw error 
-    //update filed in database 
 
     const db = await connectDB()
     const { title, content } = req.body;
@@ -74,7 +77,6 @@ const updatePost = asyncHandler(async (req, res) => {
         });
     }
 
-    // Perform the update
     const [result] = await db.query(
         "UPDATE posts SET title = ?, content = ? WHERE id = ?",
         [title, content, id]
@@ -88,7 +90,6 @@ const updatePost = asyncHandler(async (req, res) => {
         });
     }
 
-    // Fetch the updated post
     const [updatedPost] = await db.query(
         "SELECT * FROM posts WHERE id = ?",
         [id]
@@ -102,7 +103,6 @@ const updatePost = asyncHandler(async (req, res) => {
         });
     }
 
-    // Return the updated post data
     return res.status(200).json({
         status: 200,
         success: true,
@@ -112,12 +112,9 @@ const updatePost = asyncHandler(async (req, res) => {
 })
 
 const deletePost = asyncHandler(async (req, res) => {
-    //get post id from frontend 
-    //query to data base 
-
 
     const db = await connectDB()
-    const { id } = req.params
+    const { id } = req.params;
     console.log(id)
 
     if (!id) {
@@ -143,9 +140,9 @@ const getUserPosts = asyncHandler(async (req, res) => {
 
     const db = await connectDB();
 
-    const { user_id } = req.params;
+    const { id } = req.params;
 
-    if (!user_id) {
+    if (!id) {
         return res.status(400).json({
             status: 400,
             success: false,
@@ -154,8 +151,22 @@ const getUserPosts = asyncHandler(async (req, res) => {
     }
 
     const [posts] = await db.query(
-        "SELECT * FROM posts WHERE owner = ?", [user_id]
+        `SELECT 
+        posts.id,
+        posts.title,
+        posts.content,
+        users.username,
+        users.avatar,
+        posts.createdAt
+    FROM 
+        posts
+    JOIN
+        users ON posts.owner = users.id
+    WHERE
+        posts.owner = ?`,
+        [id]
     )
+  
 
     if (!posts.length === 0) {
         return res.status(404).json({
@@ -186,7 +197,8 @@ const getAllPosts = asyncHandler(async (req, res) => {
         posts.createdAt,
         users.username, 
         users.fullname, 
-        users.email 
+        users.email,
+        users.avatar
      FROM 
         posts 
      INNER JOIN 

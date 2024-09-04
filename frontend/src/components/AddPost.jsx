@@ -4,29 +4,25 @@ import axios from "axios";
 
 const AddPost = ({ isOpen, onClose, addNewPost }) => {
 
-
-  
-  const [post, setPost] = useState({ title: '', content: '' });
+  const [newpost, setnewPost] = useState({ title: '', content: '' });
   const [error, setError] = useState('');
 
   const editor = useRef(null);
 
   const fieldChanged = (e) => {
-    setPost({ ...post, [e.target.name]: e.target.value });
+    setnewPost({ ...newpost, [e.target.name]: e.target.value });
   };
 
   const contentFieldChanged = (newContent) => {
-    setPost({ ...post, content: newContent });
+    setnewPost({ ...newpost, content: newContent });
   };
- 
-  
+
 
   const createPost = async (e) => {
     try {
 
       e.preventDefault();
-      // const url = "http://localhost:8000/api/v1/posts"
-      const res = await axios.post("http://localhost:8000/api/v1/posts", post, { withCredentials: true })
+      const res = await axios.post("http://localhost:8000/api/v1/posts", newpost, { withCredentials: true })
       if (res.status == 200) {
         addNewPost(res.data.data)
         onClose();
@@ -51,7 +47,7 @@ const AddPost = ({ isOpen, onClose, addNewPost }) => {
               type="text"
               id="title"
               placeholder="Enter here"
-              className="text-black mt-1 block w-full rounded-md  shadow-sm sm:text-sm"
+              className="text-black mt-1 block w-full rounded-md pl-2 shadow-sm sm:text-sm"
               name="title"
               onChange={fieldChanged}
             />
@@ -63,7 +59,7 @@ const AddPost = ({ isOpen, onClose, addNewPost }) => {
             </label>
             <JoditEditor
               ref={editor}
-              value={post.content}
+              value={newpost.content}
               onChange={contentFieldChanged}
               className="text-black mt-1 block w-full rounded-md border border-gray-900 shadow-sm"
             />

@@ -17,17 +17,13 @@ export default function Login() {
         setData({ ...data, [input.name]: input.value });
     };
 
-    console.log(data)
-
     const handleSubmit = async (e) => {
         e.preventDefault();
     
         try {
-            const response = await axios.post("http://localhost:8000/api/v1/users/login", data, { withCredentials: true });
-            console.log(response);  // Use 'response' instead of 'res'
+            const response = await axios.post("http://localhost:8000/api/v1/users/login", data, { withCredentials: true }); // Use 'response' instead of 'res'
     
-            if (response.status === 200) {
-                console.log(response.data);  // Use 'response' instead of 'res'
+            if (response.status === 200) { // Use 'response' instead of 'res'
                 const refreshToken = response.data.data.refreshToken;
                 const accessToken = response.data.data.accessToken;
     

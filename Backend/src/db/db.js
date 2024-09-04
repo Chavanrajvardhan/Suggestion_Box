@@ -1,5 +1,6 @@
 import mysql from "mysql2/promise";
 
+//db connection
 let pool;
 
 const connectDB = async () => {
@@ -10,17 +11,17 @@ const connectDB = async () => {
                 user: process.env.USER,
                 password: process.env.PASSWORD, // Make sure this is uncommented for production
                 database: process.env.DBNAME,
-                waitForConnections: true,
-                connectionLimit: 10, // Adjust as necessary
-                queueLimit: 0 // No limit on queued requests
+                // waitForConnections: true,
+                // connectionLimit: 10, // Adjust as necessary
+                // queueLimit: 0 // No limit on queued requests
             });
 
-            await pool.getConnection(); // Attempt to verify connection
+            await pool.getConnection(); 
             console.log("\nMySQL connection pool created!");
 
         } catch (error) {
             console.error("MySQL connection FAILED", error);
-            throw error; // Ensure errors are propagated
+            throw error;
         }
     }
     return pool;
