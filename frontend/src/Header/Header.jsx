@@ -6,8 +6,6 @@ import { useNavigate } from 'react-router-dom'
 
 
 function Header() {
-
-  // const authStatus = useSelector((state) => state.auth.staus)
   const navigate = useNavigate()
 
   const [userData, setUserData] = useState('');
@@ -23,7 +21,6 @@ function Header() {
         localStorage.removeItem('refreshToken');
         localStorage.removeItem('accessToken');
 
-        // Navigate to the home page or login page
         navigate("/");
       }
     } catch (error) {

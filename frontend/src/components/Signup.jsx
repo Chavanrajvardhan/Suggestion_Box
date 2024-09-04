@@ -10,12 +10,12 @@ function Signup() {
         fullname: "",
         email: "",
         password: "",
-        avatar: null // Add avatar to the state
+        avatar: null
     });
 
     const handleChange = ({ currentTarget: input }) => {
         if (input.type === "file") {
-            setData({ ...data, avatar: input.files[0] }); // Handle file input
+            setData({ ...data, avatar: input.files[0] });
         } else {
             setData({ ...data, [input.name]: input.value });
         }
@@ -30,7 +30,7 @@ function Signup() {
             formData.append("email", data.email);
             formData.append("password", data.password);
             if (data.avatar) {
-                formData.append("avatar", data.avatar); // Append the avatar file
+                formData.append("avatar", data.avatar);
             }
     
             const response = await axios.post("http://localhost:8000/api/v1/users/register", formData, {
@@ -44,7 +44,6 @@ function Signup() {
             }
         } catch (error) {
             if (error.response && error.response.status === 400) {
-                console.log(error.response.data);
                 setError(error.response.data.message);
             }
         }

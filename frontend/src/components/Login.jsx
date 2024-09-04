@@ -23,7 +23,7 @@ export default function Login() {
         try {
             const response = await axios.post("http://localhost:8000/api/v1/users/login", data, { withCredentials: true }); // Use 'response' instead of 'res'
     
-            if (response.status === 200) { // Use 'response' instead of 'res'
+            if (response.status === 200) {
                 const refreshToken = response.data.data.refreshToken;
                 const accessToken = response.data.data.accessToken;
     
@@ -32,7 +32,7 @@ export default function Login() {
     
                 navigate("/home");
             } else {
-                setError(response.data.error);  // Use 'response' instead of 'res'
+                setError(response.data.error); 
             }
     
         } catch (error) {
